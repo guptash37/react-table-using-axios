@@ -3,19 +3,34 @@ import Tableapi from "../Api/Tableapi";
 import { Table } from 'react-bootstrap';
 
 const TableData = () => {
-  const [row, setRow] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [checkboxes, setCheckboxes] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await Tableapi();
-        setRow(data)
+        setRows(data);
       } catch (err) {
-        console.log("err")
+        console.log("Error fetching data");
       }
+    };
+    fetchData();
+  }, []);
+
+  const handleCheck = (event, row) => {
+    const updatedCheckboxes = {
+      ...checkboxes,
+      [row.id]: event.target.checked
+    };
+    setCheckboxes(updatedCheckboxes);
+
+    if (event.target.checked) {
+      console.log('Checked row:', row);
+    } else {
+      console.log('All rows:', rows);
     }
-    fetchData()
-  }, [])
+  };
 
   return (
     <div className="container mt-4">
@@ -23,24 +38,34 @@ const TableData = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
+            <th></th>
             <th>Id</th>
             <th>Name</th>
             <th>Username</th>
             <th>Email</th>
+
           </tr>
         </thead>
         <tbody>
-          {row.map(rows => (
-            <tr key={rows.id}>
-              <td>{rows.id}</td>
-              <td>{rows.name}</td>
-              <td>{rows.username}</td>
-              <td>{rows.email}</td>
+          {rows.map(row => (
+            <tr key={row.id}>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={checkboxes[row.id] || false}
+                  onChange={(event) => handleCheck(event, row)}
+                />
+              </td>
+              <td>{row.id}</td>
+              <td>{row.name}</td>
+              <td>{row.username}</td>
+              <td>{row.email}</td>
             </tr>
           ))}
         </tbody>
       </Table>
     </div>
-  )
-}
+  );
+};
+
 export default TableData;
